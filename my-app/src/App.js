@@ -2,8 +2,6 @@ import * as yup from 'yup';
 import { useState, useRef } from 'react';
 import styles from './App.module.css';
 
-// git commit -m "Формы с помощью React Hook Form"
-
 const sendFormData = (formData) => {
 	console.log(formData);
 };
@@ -30,7 +28,7 @@ const passwordBlurSchema = yup
 		/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/,
 		'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы.',
 	)
-	.min(6, 'Неверный пароль. Пароль должен содержать не менее 6 символов.');
+	.min(6, 'Пароль должен содержать не менее 6 символов.');
 
 const validateAndGetErrorMessage = (schema, value) => {
 	let errorMessage = null;
@@ -94,18 +92,23 @@ export const App = () => {
 		setPasswordRepeat(target.value);
 
 		let newErrorOfPasswordRepeat = null;
-		if (passwordRepeat !== password) {
+		if (target.value !== password) {
 			newErrorOfPasswordRepeat =
 				'Повторный пароль не совпадает с введенным паролем';
-		} else if (!!newErrorOfPasswordRepeat) {
+		}
+
+		setPasswordRepeatError(newErrorOfPasswordRepeat);
+
+		if (!newErrorOfPasswordRepeat) {
 			submitButtonRef.current.focus();
 		}
-		setPasswordRepeatError(newErrorOfPasswordRepeat);
 	};
 
 	const onSubmit = (event) => {
 		event.preventDefault();
-		sendFormData({ email, password, passwordRepeat });
+		if ((email, password, passwordRepeat)) {
+			sendFormData({ email, password, passwordRepeat });
+		}
 	};
 
 	return (
@@ -118,6 +121,7 @@ export const App = () => {
 					<div className={styles.error}>{passwordRepeatError}</div>
 				)}
 				<input
+					className={styles.input}
 					name="email"
 					type="email"
 					placeholder="Почта"
@@ -126,6 +130,7 @@ export const App = () => {
 					onBlur={onEmailBlur}
 				/>
 				<input
+					className={styles.input}
 					name="password"
 					type="password"
 					placeholder="Пароль"
@@ -134,6 +139,7 @@ export const App = () => {
 					onBlur={onPasswordBlur}
 				/>
 				<input
+					className={styles.input}
 					name="password"
 					type="password"
 					placeholder="Повтор пароля"
@@ -141,6 +147,7 @@ export const App = () => {
 					onChange={onCorrectOfPasswordRepeat}
 				/>
 				<button
+					className={styles.button}
 					ref={submitButtonRef}
 					type="submit"
 					disabled={!!emailError || !!passwordError || !!passwordRepeatError}
@@ -148,6 +155,17 @@ export const App = () => {
 					Зарегистрироваться
 				</button>
 			</form>
+			<p className={styles.infotitle}>* Информация:</p>
+			<p className={styles.info}>
+				- Длина email должна составлять от 7-ми до 25-ти (включительно) символов.
+				Email должен состоять из следующих символов на выбор: латинские буквы,
+				цифры, дефис, точка, нижнее подчеркивание.{' '}
+			</p>
+			<p className={styles.info}>
+				- Пароль должен содержать строчные и прописные буквы латиницы, цифры и
+				специальные символы. Длина пароля должна быть не менее 6-ти и не более
+				35-ти символов.
+			</p>
 		</div>
 	);
 };
