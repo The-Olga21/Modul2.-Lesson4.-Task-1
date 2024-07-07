@@ -88,6 +88,7 @@ export const App = () => {
 					<div className={styles.error}>{passwordRepeatError}</div>
 				)}
 				<input
+					className={styles.input}
 					name="email"
 					type="email"
 					placeholder="Почта"
@@ -96,6 +97,7 @@ export const App = () => {
 					onBlur={onEmailBlur}
 				/>
 				<input
+					className={styles.input}
 					name="password"
 					type="password"
 					placeholder="Пароль"
@@ -104,6 +106,7 @@ export const App = () => {
 					onBlur={onPasswordBlur}
 				/>
 				<input
+					className={styles.input}
 					name="password"
 					type="password"
 					placeholder="Повтор пароля"
@@ -111,6 +114,7 @@ export const App = () => {
 					onChange={onCorrectOfPasswordRepeat}
 				/>
 				<button
+					className={styles.button}
 					type="submit"
 					disabled={!!emailError || !!passwordError || !!passwordRepeatError}
 				>
