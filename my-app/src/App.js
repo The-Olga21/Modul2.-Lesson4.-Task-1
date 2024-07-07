@@ -73,6 +73,10 @@ export const App = () => {
 		}
 
 		setPasswordRepeatError(newErrorOfPasswordRepeat);
+
+		if (!newErrorOfPasswordRepeat) {
+			submitButtonRef.current.focus();
+		}
 	};
 
 	const onSubmit = (event) => {
@@ -119,6 +123,7 @@ export const App = () => {
 				/>
 				<button
 					className={styles.button}
+					ref={submitButtonRef}
 					type="submit"
 					disabled={!!emailError || !!passwordError || !!passwordRepeatError}
 				>
