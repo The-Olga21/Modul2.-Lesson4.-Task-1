@@ -1,90 +1,62 @@
-import * as yup from 'yup';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import styles from './App.module.css';
 
 const sendFormData = (formData) => {
 	console.log(formData);
 };
 
-const emailChangeSchema = yup
-	.string()
-	.matches(
-		/^[-.@\w_]*$/,
-		'Неверный email. Допустимые символы: буквы, цифры, дефис, точка и нижнее подчеркивание.',
-	)
-	.max(25, 'Неверный email. Должно быть не более 25 символов.');
-
-const emailBlurSchema = yup
-	.string()
-	.min(7, 'Неверный email. Должно быть не менее 7 символов.');
-
-const passwordChangeSchema = yup
-	.string()
-	.max(35, 'Неверный пароль. Пароль должен содержать не более 35 символов');
-
-const passwordBlurSchema = yup
-	.string()
-	.matches(
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/,
-		'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы.',
-	)
-	.min(6, 'Неверный пароль. Пароль должен содержать не менее 6 символов.');
-
-const validateAndGetErrorMessage = (schema, value) => {
-	let errorMessage = null;
-
-	try {
-		schema.validateSync(value, { abortEarly: false });
-	} catch ({ errors }) {
-		errorMessage = errors.join('\n');
-	}
-
-	return errorMessage;
-};
-
 export const App = () => {
 	const [email, setEmail] = useState('');
-	const [emailError, setEmailError] = useState(null);
-
 	const [password, setPassword] = useState('');
-	const [passwordError, setPasswordError] = useState(null);
-
 	const [passwordRepeat, setPasswordRepeat] = useState('');
-	const [passwordRepeatError, setPasswordRepeatError] = useState(null);
 
-	const submitButtonRef = useRef(null);
+	const [emailError, setEmailError] = useState(null);
+	const [passwordError, setPasswordError] = useState(null);
+	const [passwordRepeatError, setPasswordRepeatError] = useState(null);
 
 	const onEmailChange = ({ target }) => {
 		setEmail(target.value);
 
-		const newErrorOfEmail = validateAndGetErrorMessage(
-			emailChangeSchema,
-			target.value,
-		);
+		let newErrorOfEmail = null;
 
+		if (!/^[-.@\w_]*$/.test(target.value)) {
+			newErrorOfEmail =
+				'Неверный email. Допустимые символы: буквы, цифры, дефис, точка и нижнее подчеркивание';
+		} else if (target.value.length > 25) {
+			newErrorOfEmail = 'Неверный email. Должно быть не более 25 символов';
+		}
 		setEmailError(newErrorOfEmail);
 	};
 
 	const onEmailBlur = ({ target }) => {
-		const newErrorOfEmail = validateAndGetErrorMessage(emailBlurSchema, target.value);
-		setEmailError(newErrorOfEmail);
+		if (target.value.length < 7) {
+			setEmailError('Неверный email. Должно быть не менее 7 символов');
+		}
 	};
 
 	const onPasswordChange = ({ target }) => {
 		setPassword(target.value);
 
-		const newErrorOfPassword = validateAndGetErrorMessage(
-			passwordChangeSchema,
-			target.value,
-		);
+		let newErrorOfPassword = null;
+
+		if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/.test(target.value)) {
+			newErrorOfPassword =
+				'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы';
+		}
 		setPasswordError(newErrorOfPassword);
 	};
 
 	const onPasswordBlur = ({ target }) => {
-		const newErrorOfPassword = validateAndGetErrorMessage(
-			passwordBlurSchema,
-			target.value,
-		);
+		setPassword(target.value);
+
+		let newErrorOfPassword = null;
+
+		if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/.test(target.value)) {
+			newErrorOfPassword =
+				'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы';
+		} else if (target.value.length < 6) {
+			setPasswordError('Пароль должен содержать не менее 6 символов');
+		}
 		setPasswordError(newErrorOfPassword);
 	};
 
@@ -92,12 +64,12 @@ export const App = () => {
 		setPasswordRepeat(target.value);
 
 		let newErrorOfPasswordRepeat = null;
-		if (passwordRepeat !== password) {
+
+		if (target.value !== password) {
 			newErrorOfPasswordRepeat =
 				'Повторный пароль не совпадает с введенным паролем';
-		} else if (!!newErrorOfPasswordRepeat) {
-			submitButtonRef.current.focus();
 		}
+
 		setPasswordRepeatError(newErrorOfPasswordRepeat);
 	};
 
@@ -139,7 +111,6 @@ export const App = () => {
 					onChange={onCorrectOfPasswordRepeat}
 				/>
 				<button
-					ref={submitButtonRef}
 					type="submit"
 					disabled={!!emailError || !!passwordError || !!passwordRepeatError}
 				>
