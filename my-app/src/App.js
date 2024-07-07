@@ -2,6 +2,8 @@ import * as yup from 'yup';
 import { useState, useRef } from 'react';
 import styles from './App.module.css';
 
+// git commit -m "Формы с помощью React Hook Form"
+
 const sendFormData = (formData) => {
 	console.log(formData);
 };
