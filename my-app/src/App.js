@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import styles from './App.module.css';
 
 const sendFormData = (formData) => {
@@ -13,6 +13,8 @@ export const App = () => {
 	const [emailError, setEmailError] = useState(null);
 	const [passwordError, setPasswordError] = useState(null);
 	const [passwordRepeatError, setPasswordRepeatError] = useState(null);
+
+	const submitButtonRef = useRef(null);
 
 	const onEmailChange = ({ target }) => {
 		setEmail(target.value);
