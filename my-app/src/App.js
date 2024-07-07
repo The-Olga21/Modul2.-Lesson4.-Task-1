@@ -75,7 +75,9 @@ export const App = () => {
 
 	const onSubmit = (event) => {
 		event.preventDefault();
-		sendFormData({ email, password, passwordRepeat });
+		if ((email, password, passwordRepeat)) {
+			sendFormData({ email, password, passwordRepeat });
+		}
 	};
 
 	return (
@@ -121,6 +123,17 @@ export const App = () => {
 					Зарегистрироваться
 				</button>
 			</form>
+			<p className={styles.infotitle}>* Информация:</p>
+			<p className={styles.info}>
+				- Длина email должна составлять от 7-ми до 25-ти (включительно) символов.
+				Email должен состоять из следующих символов на выбор: латинские буквы,
+				цифры, дефис, точка, нижнее подчеркивание.{' '}
+			</p>
+			<p className={styles.info}>
+				- Пароль должен содержать строчные и прописные буквы латиницы, цифры и
+				специальные символы. Длина пароля должна быть не менее 6-ти и не более
+				35-ти символов.
+			</p>
 		</div>
 	);
 };
