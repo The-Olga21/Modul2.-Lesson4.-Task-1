@@ -1,120 +1,98 @@
+import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import { useState, useRef } from 'react';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
 import styles from './App.module.css';
 
-const sendFormData = (formData) => {
-	console.log(formData);
-};
-
-const emailChangeSchema = yup
-	.string()
-	.matches(
-		/^[-.@\w_]*$/,
-		'Неверный email. Допустимые символы: буквы, цифры, дефис, точка и нижнее подчеркивание.',
-	)
-	.max(25, 'Неверный email. Должно быть не более 25 символов.');
-
-const emailBlurSchema = yup
-	.string()
-	.min(7, 'Неверный email. Должно быть не менее 7 символов.');
-
-const passwordChangeSchema = yup
-	.string()
-	.max(35, 'Неверный пароль. Пароль должен содержать не более 35 символов');
-
-const passwordBlurSchema = yup
-	.string()
-	.matches(
-		/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/,
-		'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы.',
-	)
-	.min(6, 'Пароль должен содержать не менее 6 символов.');
-
-const validateAndGetErrorMessage = (schema, value) => {
-	let errorMessage = null;
-
-	try {
-		schema.validateSync(value, { abortEarly: false });
-	} catch ({ errors }) {
-		errorMessage = errors.join('\n');
-	}
-
-	return errorMessage;
-};
+const fieldsSchema = yup.object().shape({
+	email: yup
+		.string()
+		.matches(
+			/^[-.@\w_]*$/,
+			'Неверный email. Допустимые символы: буквы, цифры, дефис, точка и нижнее подчеркивание.',
+		)
+		.max(25, 'Неверный email. Должно быть не более 25 символов.')
+		.min(7, 'Неверный email. Должно быть не менее 7 символов.'),
+	password: yup
+		.string()
+		.max(35, 'Неверный пароль. Пароль должен содержать не более 35 символов')
+		.matches(
+			/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/,
+			'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы.',
+		)
+		.min(6, 'Пароль должен содержать не менее 6 символов.'),
+	passwordRepeat: yup
+		.string()
+		.oneOf(
+			[yup.ref('password')],
+			'Повторный пароль не совпадает с введенным паролем',
+		),
+});
 
 export const App = () => {
-	const [email, setEmail] = useState('');
-	const [emailError, setEmailError] = useState(null);
+	const {
+		register,
+		handleSubmit,
+		formState: { errors, isValid },
+	} = useForm({
+		mode: 'onBlur',
+		defaultValues: {
+			email: '',
+			password: '',
+			passwordRepeat: '',
+		},
+		resolver: yupResolver(fieldsSchema),
+	});
 
-	const [password, setPassword] = useState('');
-	const [passwordError, setPasswordError] = useState(null);
+	console.log(errors);
 
-	const [passwordRepeat, setPasswordRepeat] = useState('');
-	const [passwordRepeatError, setPasswordRepeatError] = useState(null);
+	// const emailProps = {
+	// 	minLength: {
+	// 		value: 7,
+	// 		message: 'Неверный email. Должно быть не менее 7 символов.',
+	// 	},
+	// 	maxLength: {
+	// 		value: 35,
+	// 		message: 'Неверный пароль. Пароль должен содержать не более 35 символов',
+	// 	},
+	// 	pattern: {
+	// 		value: /^[-.@\w_]*$/,
+	// 		message:
+	// 			'Неверный email. Допустимые символы: буквы, цифры, дефис, точка и нижнее подчеркивание.',
+	// 	},
+	// };
 
-	const submitButtonRef = useRef(null);
+	const emailError = errors.email?.message;
 
-	const onEmailChange = ({ target }) => {
-		setEmail(target.value);
+	// const passwordRepeatProps = {
+	// 	minLength: { value: 6, message: 'Пароль должен содержать не менее 6 символов.' },
+	// 	maxLength: {
+	// 		value: 25,
+	// 		message: 'Неверный email. Должно быть не более 25 символов.',
+	// 	},
+	// 	pattern: {
+	// 		value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^\w\s]).{0,}/,
+	// 		message:
+	// 			'Неверный пароль. Пароль должен содержать строчные и прописные буквы латиницы, цифры и специальные символы.',
+	// 	},
+	// };
 
-		const newErrorOfEmail = validateAndGetErrorMessage(
-			emailChangeSchema,
-			target.value,
-		);
+	const passwordError = errors.password?.message;
 
-		setEmailError(newErrorOfEmail);
-	};
+	const passwordRepeatError = errors.passwordRepeat?.message;
 
-	const onEmailBlur = ({ target }) => {
-		const newErrorOfEmail = validateAndGetErrorMessage(emailBlurSchema, target.value);
-		setEmailError(newErrorOfEmail);
-	};
-
-	const onPasswordChange = ({ target }) => {
-		setPassword(target.value);
-
-		const newErrorOfPassword = validateAndGetErrorMessage(
-			passwordChangeSchema,
-			target.value,
-		);
-		setPasswordError(newErrorOfPassword);
-	};
-
-	const onPasswordBlur = ({ target }) => {
-		const newErrorOfPassword = validateAndGetErrorMessage(
-			passwordBlurSchema,
-			target.value,
-		);
-		setPasswordError(newErrorOfPassword);
-	};
-
-	const onCorrectOfPasswordRepeat = ({ target }) => {
-		setPasswordRepeat(target.value);
-
-		let newErrorOfPasswordRepeat = null;
-		if (target.value !== password) {
-			newErrorOfPasswordRepeat =
-				'Повторный пароль не совпадает с введенным паролем';
-		}
-
-		setPasswordRepeatError(newErrorOfPasswordRepeat);
-
-		if (!newErrorOfPasswordRepeat) {
-			submitButtonRef.current.focus();
+	const onSubmit = (formData) => {
+		if (formData) {
+			console.log(formData);
 		}
 	};
 
-	const onSubmit = (event) => {
-		event.preventDefault();
-		if ((email, password, passwordRepeat)) {
-			sendFormData({ email, password, passwordRepeat });
-		}
-	};
+	console.log(errors);
 
 	return (
 		<div className={styles.app}>
 			Регистрация
-			<form className={styles.form} onSubmit={onSubmit}>
+			<form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
 				{emailError && <div className={styles.error}>{emailError}</div>}
 				{passwordError && <div className={styles.error}>{passwordError}</div>}
 				{passwordRepeatError && (
@@ -124,31 +102,25 @@ export const App = () => {
 					className={styles.input}
 					name="email"
 					type="email"
+					{...register('email')}
 					placeholder="Почта"
-					value={email}
-					onChange={onEmailChange}
-					onBlur={onEmailBlur}
 				/>
 				<input
 					className={styles.input}
 					name="password"
 					type="password"
+					{...register('password')}
 					placeholder="Пароль"
-					value={password}
-					onChange={onPasswordChange}
-					onBlur={onPasswordBlur}
 				/>
 				<input
 					className={styles.input}
 					name="password"
 					type="password"
 					placeholder="Повтор пароля"
-					value={passwordRepeat}
-					onChange={onCorrectOfPasswordRepeat}
+					{...register('passwordRepeat')}
 				/>
 				<button
 					className={styles.button}
-					ref={submitButtonRef}
 					type="submit"
 					disabled={!!emailError || !!passwordError || !!passwordRepeatError}
 				>
